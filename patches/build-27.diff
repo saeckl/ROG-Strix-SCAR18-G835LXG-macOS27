@@ -1,0 +1,14 @@
+--- drivers/TAS2781DirectI2C/build.sh	2026-11-14 07:08:11
++++ build-27.sh	2026-11-17 10:09:43
+@@ -4,9 +4,9 @@
+ # the factory calibration is read from this machine's UEFI variable CALI_DATA.
+ set -euo pipefail
+ cd "$(dirname "$0")"
+-VERSION=0.5.2
++VERSION=0.5.5
+ mkdir -p build
+-python3 generate_test_tables.py          # -> TAS2781TestTables.hpp (contains YOUR calibration)
++"$PY" generate_test_tables.py          # -> TAS2781TestTables.hpp (contains YOUR calibration)
+ sdk=$(xcrun --sdk macosx --show-sdk-path)
+ res=$(clang -print-resource-dir)
+ flags=(-arch x86_64 -mmacosx-version-min=26.0 -mkernel -nostdinc -isystem "$res/include"

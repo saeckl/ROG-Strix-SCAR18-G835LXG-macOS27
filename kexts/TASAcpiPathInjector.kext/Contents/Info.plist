@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key><string>English</string>
+	<key>CFBundleGetInfoString</key><string>Codeless: puts the acpi-path string TAS2781DirectI2C checks for (Tahoe spelling, _SB) on I2C0 8086:7F4C under macOS 27. VoodooI2C cannot resolve it under A2X and stays off I2C0.</string>
+	<key>CFBundleIdentifier</key><string>local.scar27.TASAcpiPathInjector</string>
+	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+	<key>CFBundleName</key><string>TASAcpiPathInjector</string>
+	<key>CFBundlePackageType</key><string>KEXT</string>
+	<key>CFBundleShortVersionString</key><string>1.0.0</string>
+	<key>CFBundleSignature</key><string>????</string>
+	<key>CFBundleVersion</key><string>1.0.0</string>
+	<key>IOKitPersonalities</key>
+	<dict>
+		<key>I2C0 tas acpi-path</key>
+		<dict>
+			<key>CFBundleIdentifier</key><string>com.apple.driver.AppleUSBHostMergeProperties</string>
+			<key>IOClass</key><string>AppleUSBHostMergeProperties</string>
+			<key>IOProviderClass</key><string>IOPCIDevice</string>
+			<key>IOPCIMatch</key><string>0x7f4c8086</string>
+			<key>IOMatchCategory</key><string>TASAcpiPathInjector</string>
+			<key>IOProbeScore</key><integer>20000</integer>
+			<key>IOProviderMergeProperties</key>
+			<dict><key>acpi-path</key><string>IOACPIPlane:/_SB/PC02@0/I2C0@150000</string></dict>
+		</dict>
+	</dict>
+	<key>OSBundleRequired</key><string>Root</string>
+</dict>
+</plist>

@@ -1,0 +1,152 @@
+--- drivers/TAS2781DirectI2C/TAS2781DirectI2C.cpp	2026-11-14 07:08:11
++++ drivers/TAS2781DirectI2C/TAS2781DirectI2C.cpp	2026-11-17 10:09:43
+@@ -204,13 +204,17 @@
+     *abort = 0;
+     for (int i = 0; i < 400 && (rd(IC_STATUS) & (1 << 5)); ++i)
+         IODelay(25);
+-    if (!setEnabled(false))
++    if (!setEnabled(false)) {
++        note("XferFailStep", 2); note("XferFailStatus", rd(IC_STATUS)); note("XferFailEnSt", rd(IC_ENABLE_STATUS));
+         return false;
++    }
+     wr(IC_INTR_MASK, 0);
+     wr(IC_TAR, addr & 0x7f);
+     (void)rd(IC_CLR_INTR);
+-    if (!setEnabled(true))
++    if (!setEnabled(true)) {
++        note("XferFailStep", 3); note("XferFailStatus", rd(IC_STATUS)); note("XferFailEnSt", rd(IC_ENABLE_STATUS));
+         return false;
++    }
+ 
+     // Feed the TX FIFO with CPU interrupts disabled: if the FIFO ran empty in the
+     // middle of a burst the controller would issue a STOP and the next data byte
+@@ -247,8 +251,13 @@
+     if (raw & RAW_TX_ABRT)
+         *abort = rd(IC_TX_ABRT_SOURCE);
+     (void)rd(IC_CLR_INTR);
++    bool ok = feedOk && waited < 5000 && !(raw & RAW_TX_ABRT);
++    if (!ok) {
++        note("XferFailStep", !feedOk ? 4 : (waited >= 5000 ? 5 : 6));
++        note("XferFailRaw", raw); note("XferFailStatus", rd(IC_STATUS)); note("XferFailTxflr", rd(IC_TXFLR));
++    }
+     setEnabled(false);
+-    return feedOk && waited < 5000 && !(raw & RAW_TX_ABRT);
++    return ok;
+ }
+ 
+ bool TAS2781DirectI2C::rawWrite(unsigned ch, UInt8 reg, const UInt8 *data, unsigned len)
+@@ -1075,20 +1084,95 @@
+ 
+ // ---------------------------------------------------------------- lifecycle
+ 
++// 0.5.3 (macOS 27): leaves the reason of every start attempt on the I2C0 nub as
++// "TAS2781DirectI2C-start", so a failed start is visible in ioreg.
++static void noteStart(IOService *nub, const char *fmt, UInt32 a = 0, UInt32 b = 0)
++{
++    char s[160];
++    snprintf(s, sizeof(s), fmt, a, b);
++    if (nub)
++        nub->setProperty("TAS2781DirectI2C-start", s);
++}
++
+ bool TAS2781DirectI2C::start(IOService *provider)
+ {
+     auto pci = OSDynamicCast(IOPCIDevice, provider);
+     auto path = pci ? OSDynamicCast(OSString, pci->getProperty("acpi-path")) : nullptr;
+-    if (!path || !path->isEqualTo("IOACPIPlane:/_SB/PC02@0/I2C0@150000") ||
+-        pci->configRead16(0) != 0x8086 || pci->configRead16(2) != 0x7f4c ||
+-        !(pci->configRead16(0x04) & 2))
++    if (!pci)
+         return false;
++    if (!path || !path->isEqualTo("IOACPIPlane:/_SB/PC02@0/I2C0@150000")) {
++        noteStart(pci, "acpi-path missing or different");
++        return false;
++    }
++    if (pci->configRead16(0) != 0x8086 || pci->configRead16(2) != 0x7f4c) {
++        noteStart(pci, "wrong PCI id %04x:%04x", pci->configRead16(0), pci->configRead16(2));
++        return false;
++    }
++    {
++        // macOS 27: no VoodooI2C wakes the controller first. Bring it to D0 and enable
++        // memory decoding ourselves (as VoodooI2CPCIController::configurePCI / Linux do).
++        UInt8 pmOff = 0;
++        UInt16 pmcsrBefore = 0xffff, cmdBefore = pci->configRead16(0x04);
++        if (pci->findPCICapability(kIOPCIPowerManagementCapability, &pmOff) && pmOff) {
++            pmcsrBefore = pci->configRead16(pmOff + 4);
++            if (pmcsrBefore & 3) {
++                pci->configWrite16(pmOff + 4, pmcsrBefore & ~3);
++                IOSleep(20);
++            }
++        }
++        if (!(cmdBefore & 2))
++            pci->configWrite16(0x04, cmdBefore | 2);
++        if (!(pci->configRead16(0x04) & 2)) {
++            noteStart(pci, "memory space stays off (cmd %04x, pmcsr %04x)", cmdBefore, pmcsrBefore);
++            return false;
++        }
++        noteStart(pci, "woken (cmd before %04x, pmcsr before %04x)", cmdBefore, pmcsrBefore);
++    }
+     memory = pci->mapDeviceMemoryWithIndex(0);
+-    if (!memory)
++    if (!memory) {
++        noteStart(pci, "BAR0 could not be mapped");
+         return false;
++    }
+     base = reinterpret_cast<volatile UInt8 *>(memory->getVirtualAddress());
+-    if (!base || memory->getLength() < 0x100 || rd(IC_COMP_TYPE) != 0x44570140)
++    if (base && memory->getLength() >= 0x208 && rd(IC_COMP_TYPE) != 0x44570140) {
++        // LPSS private reset register (Linux intel-lpss: LPSS_PRIV_RESETS = 0x204, deassert = 7)
++        UInt32 resets = rd(0x204);
++        wr(0x204, 7);
++        IOSleep(5);
++        if (rd(IC_COMP_TYPE) != 0x44570140) {
++            noteStart(pci, "comp type %08x after reset deassert (resets was %08x)", rd(IC_COMP_TYPE), resets);
++            goto fail;
++        }
++    }
++    if (!base || memory->getLength() < 0x100 || rd(IC_COMP_TYPE) != 0x44570140) {
++        noteStart(pci, "controller not readable (comp type %08x)", base ? rd(IC_COMP_TYPE) : 0);
+         goto fail;
++    }
++    {
++        // 0.5.4: on macOS 27 nobody (VoodooI2C on Tahoe) has set up the DesignWare master.
++        // Fast mode, restart enabled, slave disabled; SCL counts for the 133 MHz LPSS clock
++        // (Legion personality: I2CClkRate 133 MHz, SDA hold 42 ns), like Linux i2c-designware.
++        UInt32 con0 = rd(0x00), fsh0 = rd(0x1c), fsl0 = rd(0x20), hold0 = rd(0x7c);
++        // 0.5.5: firmware leaves IC_CON = 0x77 (high-speed mode, 10-bit master) -> nothing is sent.
++        // Always use Linux' 0x65; keep the firmware FS counts when present.
++        setEnabled(false);
++        wr(0x00, 0x65);              // IC_CON: master, fast, 7-bit, restart, slave disable
++        if (!fsh0 || !fsl0) {
++            wr(0x14, 569);           // IC_SS_SCL_HCNT (100 kHz)
++            wr(0x18, 664);           // IC_SS_SCL_LCNT
++            wr(0x1c, 117);           // IC_FS_SCL_HCNT (~380-400 kHz)
++            wr(0x20, 212);           // IC_FS_SCL_LCNT
++        }
++        if ((hold0 & 0xffff) < 6)
++            wr(0x7c, (hold0 & ~0xffffu) | 6);   // IC_SDA_HOLD >= 42 ns
++        wr(0x38, 0);                 // IC_RX_TL
++        wr(0x3c, 0);                 // IC_TX_TL
++        wr(IC_INTR_MASK, 0);
++        char s[160];
++        snprintf(s, sizeof(s), "started, comp %08x, before: con %x fs %u/%u hold %x, now: con %x fs %u/%u",
++                 rd(IC_COMP_TYPE), con0, fsh0, fsl0, hold0, rd(0x00), rd(0x1c), rd(0x20));
++        pci->setProperty("TAS2781DirectI2C-start", s);
++    }
+     irqLock = IOSimpleLockAlloc();
+     log = OSDictionary::withCapacity(48);
+     loop = IOWorkLoop::workLoop();
+--- drivers/TAS2781DirectI2C/Info.plist	2026-11-14 07:08:11
++++ drivers/TAS2781DirectI2C/Info.plist	2026-11-17 10:09:43
+@@ -11,9 +11,9 @@
+ 	<key>CFBundlePackageType</key>
+ 	<string>KEXT</string>
+ 	<key>CFBundleShortVersionString</key>
+-	<string>0.5.2</string>
++	<string>0.5.5</string>
+ 	<key>CFBundleVersion</key>
+-	<string>0.5.2</string>
++	<string>0.5.5</string>
+ 	<key>IOKitPersonalities</key>
+ 	<dict>
+ 		<key>TAS2781DirectI2C</key>

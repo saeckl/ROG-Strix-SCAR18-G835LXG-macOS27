@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Codeless: merges acpi-path into the Arrow Lake LPSS I2C4 PCI nub (8086:7F7A, touchpad TPD0) only. 1.0.2 test build: I2C0 (TAS amp) left out to find which controller freezes macOS 27.</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.scar27.I2CAcpiPathInjector</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>I2CAcpiPathInjector</string>
+	<key>CFBundlePackageType</key>
+	<string>KEXT</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.2</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.2</string>
+	<key>IOKitPersonalities</key>
+	<dict>
+		<key>I2C4 acpi-path</key>
+		<dict>
+			<key>CFBundleIdentifier</key>
+			<string>com.apple.driver.AppleUSBHostMergeProperties</string>
+			<key>IOClass</key>
+			<string>AppleUSBHostMergeProperties</string>
+			<key>IOMatchCategory</key>
+			<string>I2CAcpiPathInjector</string>
+			<key>IOPCIMatch</key>
+			<string>0x7f7a8086</string>
+			<key>IOProbeScore</key>
+			<integer>20000</integer>
+			<key>IOProviderClass</key>
+			<string>IOPCIDevice</string>
+			<key>IOProviderMergeProperties</key>
+			<dict>
+				<key>acpi-path</key>
+				<string>IOACPIPlane:/_SB_/PC02@0/I2C4@190000</string>
+			</dict>
+		</dict>
+	</dict>
+	<key>OSBundleRequired</key>
+	<string>Root</string>
+</dict>
+</plist>
