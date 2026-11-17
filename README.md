@@ -33,6 +33,9 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | Touchpad | **does not work** – with the missing `acpi-path` injected VoodooI2C attaches, then macOS 27 freezes hard | [findings](docs/findings.md#3-touchpad-voodooi2c-needs-acpi-path-then-freezes) |
 | Display brightness | **does not work** – NVKMS backlight registers like on Tahoe, "applied" without error, panel does not change | [findings](docs/findings.md#4-display-brightness) |
 | Finder | crashes when a device appears (second SSD, iPhone USB hotspot) while the sidebar is visible → **hide the sidebar** (Ctrl+Cmd+S) | a2x bug, [findings](docs/findings.md#5-finder-crash-when-a-device-appears) |
+| Preview (image viewer) | crashes ~20 s after opening an image (`NSMapInsert … notAKeyMarker` from translated code) | a2x bug, [findings](docs/findings.md#7-preview-crash) |
+| Dock | app context menu opens at the far left; magnification enabled but without effect | observation, no log entries |
+| World of Warcraft | **flickers** – Metal device lost/recreated in a loop; `NVMTL_NAK_NO_PREDLOAD=1` fixes the compute pipelines, then two pixel shaders fail with "Shader entrypoint '_main' not found" (same NullMoth 2.9/3.0 issue as on Tahoe) | [findings](docs/findings.md#8-world-of-warcraft-flickers) |
 | Wi-Fi / Ethernet / Bluetooth | Ethernet and USB tethering work; others not checked in detail | – |
 | Sleep | not tested (does not work on Tahoe either) | – |
 

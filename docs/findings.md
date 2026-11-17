@@ -55,7 +55,28 @@ Path: DesktopServices notification → `NSOutlineView reloadItem` (sidebar) → 
 See [audio-27.md](audio-27.md). Short: TAS2781DirectI2C needs the Tahoe-style `acpi-path` string on I2C0, must wake I2C0 from D3
 itself (VoodooI2C did it on Tahoe) and must set `IC_CON` to `0x65` (firmware leaves `0x77` = high-speed, 10-bit → nothing is sent).
 
-## 7. Other notes
+## 7. Preview crash
+
+Preview starts empty, but ~20 s after opening an image it quits without a crash report:
+`NSInvalidArgumentException: *** NSMapInsert(): attempt to insert notAKeyMarker` from `-[NSClassicMapTable setObject:forKey:]`,
+called by `Preview __arm2x86_interp_native` – a null/sentinel key coming out of the a2x translation.
+
+## 8. World of Warcraft flickers
+
+WoW Retail (1.60.1.70938, runs as x86_64 on 27, GPU "NVMTL over … (NVK GB203-B)") starts, but the Metal device is lost and
+recreated in a loop (`Device context was lost` → `GxRestart`) – that is the flicker.
+
+| | default NullMoth config | with `NVMTL_NAK_NO_PREDLOAD=1` |
+| --- | --- | --- |
+| `Compute Pipeline Create Failed` (`vkCreateComputePipelines FAILED`) | 116 | 0 |
+| device lost / GxRestart | 116 in ~21 s | 88 |
+| remaining error | – | `Shader entrypoint '_main' not found (Prism:(0))`, `CreateShader failed: FileData ID 2977317` / `2977333` |
+
+Set the option with the Tahoe repo's `tools/nvmtl-option/nvmtl-option.sh NVMTL_NAK_NO_PREDLOAD on` (user block of
+`/Library/GPUBundles/nvmtl/nvrm610.conf`, survives driver updates; restart the game, not the Mac). The remaining error is the
+NullMoth 2.9/3.0 shader-translation issue that also stops WoW on Tahoe (`air.interpolate_center_perspective`) – not 27-specific.
+
+## 9. Other notes
 
 - **kmutil on 27** reads KC UUIDs wrong (e.g. system KC "linked against …FE10-357300A00050", boot KC "…FE40-4B5F00800050"):
   aux KCs must be built on Tahoe. Without `--volume-root`, with `-x -b <ids>`, check `_BootKCID`.

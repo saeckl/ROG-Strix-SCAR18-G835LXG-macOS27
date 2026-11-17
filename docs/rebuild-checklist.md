@@ -40,6 +40,7 @@ The scripts find the OpenCore EFI of the disk that holds the "macOS 27" volume t
 | 7 | Speakers step 2: VoodooHDA aux KC (section 6) | **Tahoe** | 5 kexts in the new aux KC, sound on 27 |
 | 8 | ROG Licht / ASUS WMI (section 7) | 27 | asus-hotkeys log shows `0x0` |
 | 9 | Optional: GPU `acpi-path` injector (section 8) | 27 | NVKMS backlight registered (panel still does not dim) |
+| 10 | Games (WoW): `sudo tools/nvmtl-option/nvmtl-option.sh NVMTL_NAK_NO_PREDLOAD on` (Tahoe repo) | 27 | `gx.log` shows no "Compute Pipeline Create Failed" (WoW still flickers until NullMoth fixes the shader translator) |
 
 ## 3. Boot fix (WindowServer hang)
 
