@@ -18,7 +18,7 @@ Ausführlich auf Englisch: [README.md](README.md). Baut auf dem Tahoe-Projekt
 
 - **Touchpad**: VoodooI2C braucht `acpi-path`, den NullMoths A2XACPIPCI nicht setzt; nachgeliefert friert macOS 27 ein.
 - **WLAN verbindet sich nicht automatisch**: Nach dem Start oder nach WLAN aus/ein ist ein Klick auf das gespeicherte Netz nötig.
-- **AirDrop** findet keine Geräte und wird nicht gefunden. Handoff ist noch nicht getestet.
+- **AirDrop** findet keine Geräte und wird nicht gefunden: `sharingd` hängt oder stürzt unter a2x ab ([Details, englisch](docs/airdrop-27.md)). Handoff ist noch nicht getestet.
 - **Displayhelligkeit**: Treiber meldet Erfolg, Panel reagiert nicht.
 - **Setup-Assistent** stürzt ab → Konto offline anlegen ([Skript](scripts/create-user-offline.sh)).
 - **Finder** stürzt ab, wenn ein Gerät dazukommt → Seitenleiste ausblenden (Ctrl+Cmd+S).

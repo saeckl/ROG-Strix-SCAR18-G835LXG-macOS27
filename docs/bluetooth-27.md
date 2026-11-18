@@ -9,7 +9,7 @@ Tested on macOS 27.2 beta (26B123) on one G835LXG, with `IntelBluetoothFirmware`
 | Controller on, `bluetoothd` stable | works |
 | BLE scan | works |
 | Pairing and connecting a device | works |
-| AirDrop | **does not work**: finds nobody and is not found. `awdl0` is up and `sharingd` starts its listener, the cause is not proven |
+| AirDrop | **does not work**: finds nobody and is not found. see [airdrop-27.md](airdrop-27.md) |
 | Handoff, Universal Clipboard | not tested (need an Apple Account) |
 
 ## Setup

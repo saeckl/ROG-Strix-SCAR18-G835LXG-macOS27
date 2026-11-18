@@ -39,7 +39,7 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | Wi-Fi (Intel BE200) | **works**: scan, join, internet, menu, on/off switch, AirPlay. **Automatic join does not work yet**, one click after boot or Wi-Fi off/on | AirportItlwm + OCLP frameworks + shims + boot service ([guide](docs/wifi-27.md)) |
 | Ethernet, USB tethering | work | `RTL812xLucy`, iPhone USB |
 | Bluetooth (Intel `8087:0036`) | **works**: BLE scan, pairing, connecting | `IntelBluetoothFirmware` + `BlueToolFixup`, `IntelBTPatcher` must stay off ([guide](docs/bluetooth-27.md)) |
-| AirDrop | **does not work**: finds nobody and is not found | cause not proven ([notes](docs/bluetooth-27.md)) |
+| AirDrop | **does not work**: finds nobody and is not found | `sharingd` hangs on the EAPOL service and crashes under a2x with the workaround ([details](docs/airdrop-27.md)) |
 | Handoff | not tested | – |
 | Sleep | not tested (does not work on Tahoe either) | – |
 
@@ -54,6 +54,7 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | [`kexts/`](kexts) | Codeless injectors: `TASAcpiPathInjector`, `GPUAcpiPathInjector`, `I2CAcpiPathInjector` (experimental, freezes) |
 | [`docs/wifi-27.md`](docs/wifi-27.md) | Wi-Fi: what is needed, why, step-by-step list, way back, open problems |
 | [`docs/bluetooth-27.md`](docs/bluetooth-27.md) | Bluetooth: OpenCore setting, checks and why `IntelBTPatcher` stays off |
+| [`docs/airdrop-27.md`](docs/airdrop-27.md) | AirDrop: current findings and open questions |
 | [`wifi/`](wifi) | Wi-Fi shims (source), boot service, build/install/remove scripts, OpenCore switch, TCP panic workaround |
 | [`scripts/`](scripts) | OpenCore helpers (`oc-kext.sh`, `oc-maxkernel.sh`), aux KC build on Tahoe, offline user, boot capture |
 

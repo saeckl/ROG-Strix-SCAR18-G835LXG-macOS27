@@ -13,7 +13,7 @@ The system volume is not changed. Everything added on macOS 27 can be removed wi
 | AirPlay | works |
 | **Automatic join** after boot or after Wi-Fi off/on | **does not work**, one click on the saved network is needed; the password stays saved |
 | 802.1X / enterprise Wi-Fi | not available (the EAPOL service is stubbed out) |
-| AirDrop | does not work, finds nobody and is not found ([Bluetooth notes](bluetooth-27.md)) |
+| AirDrop | does not work, see [airdrop-27.md](airdrop-27.md) |
 | Handoff | not tested |
 
 ## What is needed and why
@@ -98,7 +98,7 @@ sudo wifi/tcp-prr/remove.sh    # optional
 **`rapportd` and `sharingd`** also wait on the EAPOL service in a background thread. With the EAPOL shim they crashed
 (exit 139), so the service leaves them alone. Whether this affects Continuity features is not known yet.
 
-**AirDrop.** `awdl0` is up and `sharingd` starts its listener, but no peers appear. `wifip2pd` is not replaced. Limited AWDL support in AirportItlwm is the likely cause, but this is not proven.
+**AirDrop.** See [airdrop-27.md](airdrop-27.md). `wifip2pd` is not replaced.
 
 The cleanest fix for the EAPOL part would be an x86_64 `EAPOLController` plugin for `configd`, which belongs into the a2x
 system files. It was not tried because it means changing the system volume.
