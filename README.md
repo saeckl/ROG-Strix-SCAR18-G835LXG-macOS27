@@ -38,8 +38,9 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | World of Warcraft | **flickers** – Metal device lost/recreated in a loop; `NVMTL_NAK_NO_PREDLOAD=1` fixes the compute pipelines, then two pixel shaders fail with "Shader entrypoint '_main' not found" (same NullMoth 2.9/3.0 issue as on Tahoe) | [findings](docs/findings.md#8-world-of-warcraft-flickers) |
 | Wi-Fi (Intel BE200) | **works**: scan, join, internet, menu, on/off switch, AirPlay. **Automatic join does not work yet**, one click after boot or Wi-Fi off/on | AirportItlwm + OCLP frameworks + shims + boot service ([guide](docs/wifi-27.md)) |
 | Ethernet, USB tethering | work | `RTL812xLucy`, iPhone USB |
-| Bluetooth | not working yet (Intel `8087:0036` has no firmware driver loaded) | – |
-| AirDrop, Handoff | not tested, need Bluetooth first | – |
+| Bluetooth (Intel `8087:0036`) | **works**: BLE scan, pairing, connecting | `IntelBluetoothFirmware` + `BlueToolFixup`, `IntelBTPatcher` must stay off ([guide](docs/bluetooth-27.md)) |
+| AirDrop | **does not work**: finds nobody and is not found | cause not proven ([notes](docs/bluetooth-27.md)) |
+| Handoff | not tested | – |
 | Sleep | not tested (does not work on Tahoe either) | – |
 
 ## Repository layout
@@ -52,6 +53,7 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | [`patches/`](patches) | `TAS2781DirectI2C` 0.5.5 patch against the Tahoe repo (wake I2C0 from D3, IC_CON 0x65, start reason in ioreg) |
 | [`kexts/`](kexts) | Codeless injectors: `TASAcpiPathInjector`, `GPUAcpiPathInjector`, `I2CAcpiPathInjector` (experimental, freezes) |
 | [`docs/wifi-27.md`](docs/wifi-27.md) | Wi-Fi: what is needed, why, step-by-step list, way back, open problems |
+| [`docs/bluetooth-27.md`](docs/bluetooth-27.md) | Bluetooth: OpenCore setting, checks and why `IntelBTPatcher` stays off |
 | [`wifi/`](wifi) | Wi-Fi shims (source), boot service, build/install/remove scripts, OpenCore switch, TCP panic workaround |
 | [`scripts/`](scripts) | OpenCore helpers (`oc-kext.sh`, `oc-maxkernel.sh`), aux KC build on Tahoe, offline user, boot capture |
 

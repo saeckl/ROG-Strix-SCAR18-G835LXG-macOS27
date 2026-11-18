@@ -84,7 +84,12 @@ Full guide: [wifi-27.md](wifi-27.md). The main finding also matters for other x8
 block forever in `eapolcontroller_copy_status`. spindump shows "blocked by turnstile waiting for configd … EAPOLController".
 Under a2x, `log show` lists translated processes as `launchd`: filter by PID, not by process name.
 
-## 10. Other notes
+## 10. Bluetooth: IntelBTPatcher restart loop
+
+`IntelBTPatcher` injects *LE Set Random Address* (`0x2005`). `bluetoothd` on macOS 27 treats its completion as an orphan event and
+restarts (`reason=635`). Details: [bluetooth-27.md](bluetooth-27.md).
+
+## 11. Other notes
 
 - **kmutil on 27** reads KC UUIDs wrong (e.g. system KC "linked against …FE10-357300A00050", boot KC "…FE40-4B5F00800050"):
   aux KCs must be built on Tahoe. Without `--volume-root`, with `-x -b <ids>`, check `_BootKCID`.
