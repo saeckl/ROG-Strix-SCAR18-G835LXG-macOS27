@@ -76,7 +76,15 @@ Set the option with the Tahoe repo's `tools/nvmtl-option/nvmtl-option.sh NVMTL_N
 `/Library/GPUBundles/nvmtl/nvrm610.conf`, survives driver updates; restart the game, not the Mac). The remaining error is the
 NullMoth 2.9/3.0 shader-translation issue that also stops WoW on Tahoe (`air.interpolate_center_perspective`) – not 27-specific.
 
-## 9. Other notes
+## 9. Wi-Fi: dead EAPOL service
+
+Full guide: [wifi-27.md](wifi-27.md). The main finding also matters for other x86_64 daemons under a2x: `configd` runs as x86_64, and
+`/System/Library/SystemConfiguration/EAPOLController.bundle` has only arm64e slices (same for `CaptiveNetworkSupport` and
+`USBDeviceConfiguration`), so the plugin never loads. launchd still owns `com.apple.network.EAPOLController` for `configd`, so clients
+block forever in `eapolcontroller_copy_status`. spindump shows "blocked by turnstile waiting for configd … EAPOLController".
+Under a2x, `log show` lists translated processes as `launchd`: filter by PID, not by process name.
+
+## 10. Other notes
 
 - **kmutil on 27** reads KC UUIDs wrong (e.g. system KC "linked against …FE10-357300A00050", boot KC "…FE40-4B5F00800050"):
   aux KCs must be built on Tahoe. Without `--volume-root`, with `-x -b <ids>`, check `_BootKCID`.

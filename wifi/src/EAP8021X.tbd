@@ -1,0 +1,8 @@
+--- !tapi-tbd
+tbd-version: 4
+targets: [ x86_64-macos ]
+install-name: '/System/Library/PrivateFrameworks/EAP8021X.framework/Versions/A/EAP8021X'
+exports:
+  - targets: [ x86_64-macos ]
+    symbols: [ _EAPOLControlStart, _EAPOLControlStartWithOptions, _EAPOLControlStartWithClientItemID, _EAPOLControlStartSystem, _EAPOLControlStartSystemWithClientItemID, _EAPOLControlStop, _EAPOLControlUpdate, _EAPOLControlRetry, _EAPOLControlProvideUserInput, _EAPOLControlSetLogLevel, _EAPOLControlCopyStateAndStatus, _EAPOLControlCopyLoginWindowConfiguration, _EAPOLControlCopyLoginWindowClientItemID, _EAPOLControlCopyAutoDetectInformation, _EAPOLControlDidUserCancel ]
+...

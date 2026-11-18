@@ -36,7 +36,10 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | Preview (image viewer) | crashes ~20 s after opening an image (`NSMapInsert … notAKeyMarker` from translated code) | a2x bug, [findings](docs/findings.md#7-preview-crash) |
 | Dock | app context menu opens at the far left; magnification enabled but without effect | observation, no log entries |
 | World of Warcraft | **flickers** – Metal device lost/recreated in a loop; `NVMTL_NAK_NO_PREDLOAD=1` fixes the compute pipelines, then two pixel shaders fail with "Shader entrypoint '_main' not found" (same NullMoth 2.9/3.0 issue as on Tahoe) | [findings](docs/findings.md#8-world-of-warcraft-flickers) |
-| Wi-Fi / Ethernet / Bluetooth | Ethernet and USB tethering work; others not checked in detail | – |
+| Wi-Fi (Intel BE200) | **works**: scan, join, internet, menu, on/off switch, AirPlay. **Automatic join does not work yet**, one click after boot or Wi-Fi off/on | AirportItlwm + OCLP frameworks + shims + boot service ([guide](docs/wifi-27.md)) |
+| Ethernet, USB tethering | work | `RTL812xLucy`, iPhone USB |
+| Bluetooth | not working yet (Intel `8087:0036` has no firmware driver loaded) | – |
+| AirDrop, Handoff | not tested, need Bluetooth first | – |
 | Sleep | not tested (does not work on Tahoe either) | – |
 
 ## Repository layout
@@ -48,10 +51,12 @@ collection). Everything was tested on exactly one laptop. It is a beta on unsupp
 | [`docs/audio-27.md`](docs/audio-27.md) | Speakers on macOS 27: TAS2781 changes and the VoodooHDA aux KC |
 | [`patches/`](patches) | `TAS2781DirectI2C` 0.5.5 patch against the Tahoe repo (wake I2C0 from D3, IC_CON 0x65, start reason in ioreg) |
 | [`kexts/`](kexts) | Codeless injectors: `TASAcpiPathInjector`, `GPUAcpiPathInjector`, `I2CAcpiPathInjector` (experimental, freezes) |
+| [`docs/wifi-27.md`](docs/wifi-27.md) | Wi-Fi: what is needed, why, step-by-step list, way back, open problems |
+| [`wifi/`](wifi) | Wi-Fi shims (source), boot service, build/install/remove scripts, OpenCore switch, TCP panic workaround |
 | [`scripts/`](scripts) | OpenCore helpers (`oc-kext.sh`, `oc-maxkernel.sh`), aux KC build on Tahoe, offline user, boot capture |
 
 Not included on purpose: TI firmware, the generated TAS2781 tables and any built TAS2781 kext (they contain the
-factory calibration of one laptop), NullMoth files, VoodooHDA binaries, logs.
+factory calibration of one laptop), NullMoth files, VoodooHDA binaries, logs, the OCLP frameworks and the Wi-Fi kexts.
 
 ## Thanks
 

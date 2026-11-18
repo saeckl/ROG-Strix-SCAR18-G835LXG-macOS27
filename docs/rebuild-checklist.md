@@ -41,6 +41,7 @@ The scripts find the OpenCore EFI of the disk that holds the "macOS 27" volume t
 | 8 | ROG Licht / ASUS WMI (section 7) | 27 | asus-hotkeys log shows `0x0` |
 | 9 | Optional: GPU `acpi-path` injector (section 8) | 27 | NVKMS backlight registered (panel still does not dim) |
 | 10 | Games (WoW): `sudo tools/nvmtl-option/nvmtl-option.sh NVMTL_NAK_NO_PREDLOAD on` (Tahoe repo) | 27 | `gx.log` shows no "Compute Pipeline Create Failed" (WoW still flickers until NullMoth fixes the shader translator) |
+| 11 | Wi-Fi: frameworks from Tahoe, OpenCore stage 3, TCP workaround, build and install the service ([guide](wifi-27.md)) | Tahoe, then 27 | `/var/log/airportd-wifi27.log` shows all three "running" lines; join from the menu works |
 
 ## 3. Boot fix (WindowServer hang)
 

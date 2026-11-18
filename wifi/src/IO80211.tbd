@@ -1,0 +1,8 @@
+--- !tapi-tbd
+tbd-version: 4
+targets: [ x86_64-macos ]
+install-name: '/System/Library/PrivateFrameworks/IO80211.framework/Versions/A/IO80211'
+exports:
+  - targets: [ x86_64-macos ]
+    symbols: [ _ASL_LOG, _IO8Log, _IO8Log2, _apple80211_roam_profile_typetoStr, _apple80211_authtype_uppertoStr, _apple80211_apmodetoStr ]
+...
